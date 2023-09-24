@@ -45,18 +45,13 @@ class Recipe(db.Model, SerializerMixin):
     # A recipe belongs to a user. 
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String, nullable=False)
-    instructions = db.Column(db.String)
-    minutes_to_complete = db.Column(db.String)
+    instructions = db.Column(db.String, nullable=False)
+    minutes_to_complete = db.Column(db.Integer)
 
     users = db.relationship('User', backref='recipes')
 
     @validates('instructions')
     def validate_instructions_length(self, key, value):
-        if len(value) < 50:
-            raise ValueError("instructions must be at least 50characters in length.")
+        if len(value) > 50:
+            raise ValueError("instructions must be at least 50 characters in length.")
         return value
-
-
-
-
-    pass
