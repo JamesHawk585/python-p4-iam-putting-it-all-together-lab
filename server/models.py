@@ -11,6 +11,7 @@ class User(db.Model, SerializerMixin):
     _password_hash = db.Column(db.String)
     image_url = db.Column(db.String)
     bio = db.Column(db.String)
+    recipe_id = db.Column(db.Integer, db.ForeignKey('recipes.id'))
 
     # [x] incorporate bcrypt to create a secure password. Attempts to access the password_hash should be met with an AttributeError.
     # [x] validate the user's username to ensure that it is present and unique (no two users can have the same username).
