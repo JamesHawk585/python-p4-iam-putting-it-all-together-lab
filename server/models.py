@@ -6,12 +6,19 @@ from config import db, bcrypt
 
 class User(db.Model, SerializerMixin):
     __tablename__ = 'users'
+
+    serialize_rules = ('-recipes.user', '-_password_hash',)
+                       
+
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String)
+    username = db.Column(db.String, unique=True, nullable=False)
     _password_hash = db.Column(db.String)
     image_url = db.Column(db.String)
     bio = db.Column(db.String)
-    recipe_id = db.Column(db.Integer, db.ForeignKey('recipes.id'))
+
+    recipes = db.relationship('Recipe', backref='user')
+
+
 
     # [x] incorporate bcrypt to create a secure password. Attempts to access the password_hash should be met with an AttributeError.
     # [x] validate the user's username to ensure that it is present and unique (no two users can have the same username).
@@ -42,16 +49,23 @@ class User(db.Model, SerializerMixin):
 # [] Instructions must be present and at least 50 characters long.]
 class Recipe(db.Model, SerializerMixin):
     __tablename__ = 'recipes'
+    __table_args__ = (
+        db.CheckConstraint('length(instructions) >= 50'),
+    )
+
     # A recipe belongs to a user. 
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String, nullable=False)
     instructions = db.Column(db.String, nullable=False)
     minutes_to_complete = db.Column(db.Integer)
 
-    users = db.relationship('User', backref='recipes')
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
-    @validates('instructions')
-    def validate_instructions_length(self, key, value):
-        if len(value) > 50:
-            raise ValueError("instructions must be at least 50 characters in length.")
-        return value
+    # users = db.relationship('User', backref='recipes')
+
+    # Issue is not with validates
+    # @validates('instructions')
+    # def validate_instructions_length(self, key, value):
+    #     if len(value) < 50:
+    #         raise ValueError("instructions must be present and at least 50 characters long")
+    #     return value
